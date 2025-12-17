@@ -3,7 +3,7 @@ name: CI/CD pipeline for Tomcat (DEV, TEST, PRE-PROD, PROD)
 
 on:
   push:
-    branches:
+    branches: 
       - master
 
 jobs:
