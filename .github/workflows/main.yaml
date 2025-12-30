@@ -46,4 +46,3 @@ jobs:
           # Path to Tomcat's webapps directory on the server
           target: "/opt/tomcat/webapps/"
           strip_components: 1
-        
