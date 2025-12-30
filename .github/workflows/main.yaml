@@ -1,8 +1,9 @@
-name: CI/CD Pipeline - Sonar & Tomcat
+name: CI/CD pipeline for Tomcat
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
 
 jobs:
   build-and-deploy:
@@ -12,41 +13,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Important for better SonarQube analysis
+          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
-          cache: 'maven'
+          cache: maven
 
-      # 1. Build & Analyze Step
-      # This runs tests and sends the report to SonarQube
       - name: Build and SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
-          run: |
-           mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-           -Dsonar.projectKey=train-ticket-reservation \
-           -Dsonar.host.url=$SONAR_HOST_URL \
-           -Dsonar.login=$SONAR_TOKEN
-
-      # 2. Deployment Step
-      # Only runs if the Build & Sonar scan are successful
-      - name: Deploy WAR to Tomcat
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.TOMCAT_SERVER_IP }}
-          username: ${{ secrets.TOMCAT_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # Path to your generated WAR file
-          source: "target/*.war"
-          # Path to Tomcat's webapps directory on the server
-          target: "/opt/tomcat/webapps/"
-          strip_components: 1
-
-
-
-
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          mvn clean verify sonar:sonar \
+            -Dsonar.host.url=${SONAR_HOST_URL} \
+            -Dsonar.login=${SONAR_TOKEN}
